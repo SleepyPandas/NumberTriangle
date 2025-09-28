@@ -2,29 +2,29 @@ import java.io.*;
 
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
- *
+ * <p>
  * Note: This is like a tree, but some nodes in the structure have two parents.
- *
+ * <p>
  * The structure is shown below. Observe that the parents of e are b and c, whereas
  * d and f each only have one parent. Each row is complete and will never be missing
  * a node. So each row has one more NumberTriangle object than the row above it.
- *
- *                  a
- *                b   c
- *              d   e   f
- *            h   i   j   k
- *
+ * <p>
+ * a
+ * b   c
+ * d   e   f
+ * h   i   j   k
+ * <p>
  * Also note that this data structure is minimally defined and is only intended to
  * be constructed using the loadTriangle method, which you will implement
  * in this file. We have not included any code to enforce the structure noted above,
  * and you don't have to write any either.
- *
- *
+ * <p>
+ * <p>
  * See NumberTriangleTest.java for a few basic test cases.
- *
+ * <p>
  * Extra: If you decide to solve the Project Euler problems (see main),
- *        feel free to add extra methods to this class. Just make sure that your
- *        code still compiles and runs so that we can run the tests on your code.
+ * feel free to add extra methods to this class. Just make sure that your
+ * code still compiles and runs so that we can run the tests on your code.
  *
  */
 public class NumberTriangle {
@@ -52,21 +52,24 @@ public class NumberTriangle {
     }
 
 
+    /* -----------------------not for credit--------------------------- */
+
     /**
      * [not for credit]
      * Set the root of this NumberTriangle to be the max path sum
      * of this NumberTriangle, as defined in Project Euler problem 18.
      * After this method is called, this NumberTriangle should be a leaf.
-     *
+     * <p>
      * Hint: think recursively and use the idea of partial tracing from first year :)
-     *
+     * <p>
      * Note: a NumberTriangle contains at least one value.
      */
-    public void maxSumPath() {
-        // for fun [not for credit]:
-    }
+//    public void maxSumPath() {
+//        // for fun [not for credit]:
+//
+//    }
 
-
+    /* -----------------------end not for credit--------------------------- */
     public boolean isLeaf() {
         return right == null && left == null;
     }
@@ -76,12 +79,12 @@ public class NumberTriangle {
      * Follow path through this NumberTriangle structure ('l' = left; 'r' = right) and
      * return the root value at the end of the path. An empty string will return
      * the root of the NumberTriangle.
-     *
+     * <p>
      * You can decide if you want to use a recursive or an iterative approach in your solution.
-     *
+     * <p>
      * You can assume that:
-     *      the length of path is less than the height of this NumberTriangle structure.
-     *      each character in the string is either 'l' or 'r'
+     * the length of path is less than the height of this NumberTriangle structure.
+     * each character in the string is either 'l' or 'r'
      *
      * @param path the path to follow through this NumberTriangle
      * @return the root value at the location indicated by path
@@ -89,14 +92,44 @@ public class NumberTriangle {
      */
     public int retrieve(String path) {
         // TODO implement this method
-        return -1;
+
+        // Remember == is for same object, .equals is for same value
+
+        if (path == null) {
+            return -1;
+        }
+        // if it is ""
+        if (path.isEmpty()) {
+            return this.root;
+        }
+
+        // if path is left or right set the instance to this Node
+        NumberTriangle current = this;
+
+        for (int i = 0; i < path.length(); i++) {
+            char c = path.charAt(i);
+            if (c == 'l') {
+                current = current.left;
+            } else if (c == 'r') {
+                current = current.right;
+            } else {
+                return -1; // invalid character
+            }
+            if (current == null) {
+                return -1; // path goes nowhere
+            }
+        }
+
+
+        return current.root;
     }
 
-    /** Read in the NumberTriangle structure from a file.
-     *
+    /**
+     * Read in the NumberTriangle structure from a file.
+     * <p>
      * You may assume that it is a valid format with a height of at least 1,
      * so there is at least one line with a number on it to start the file.
-     *
+     * <p>
      * See resources/input_tree.txt for an example NumberTriangle format.
      *
      * @param fname the file to load the NumberTriangle structure from
@@ -114,15 +147,45 @@ public class NumberTriangle {
 
         // will need to return the top of the NumberTriangle,
         // so might want a variable for that.
-        NumberTriangle top = null;
+        NumberTriangle top = null; // <-- initialize to null, since we haven't built the triangle yet
 
         String line = br.readLine();
+        java.util.List<NumberTriangle> prevRow = null;
         while (line != null) {
-
+            //System.out.println(line);
             // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
+
 
             // TODO process the line
+             // will need to store the previous row to link parents to children
+
+            line = line.trim();
+            if (line.isEmpty()) {
+                continue; // skip empty lines
+
+            }
+
+            // Lets parse each string number into an int arrayLIST
+            String[] parts = line.split("\\s+");
+
+
+            java.util.List<NumberTriangle> currentRow = new java.util.ArrayList<>();
+
+            for (int i = 0; i < parts.length; i++) {
+                currentRow.add(new NumberTriangle(Integer.parseInt(parts[i])));
+            }
+
+            if (prevRow == null) {
+                top = currentRow.get(0);
+            } else {
+                for (int i = 0; i < prevRow.size(); i++) {
+                    NumberTriangle parent = prevRow.get(i);
+                    parent.setLeft(currentRow.get(i));
+                    parent.setRight(currentRow.get(i + 1));
+                }
+            }
+
+            prevRow = currentRow;
 
             //read the next line
             line = br.readLine();
@@ -135,10 +198,11 @@ public class NumberTriangle {
 
         NumberTriangle mt = NumberTriangle.loadTriangle("input_tree.txt");
 
-        // [not for credit]
-        // you can implement NumberTriangle's maxPathSum method if you want to try to solve
-        // Problem 18 from project Euler [not for credit]
-        mt.maxSumPath();
-        System.out.println(mt.getRoot());
+
+//        // [not for credit]
+//        // you can implement NumberTriangle's maxPathSum method if you want to try to solve
+//        // Problem 18 from project Euler [not for credit]
+//        mt.maxSumPath();
+//        System.out.println(mt.getRoot());
     }
 }
